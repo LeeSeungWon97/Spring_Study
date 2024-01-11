@@ -2,6 +2,10 @@ package toy.springboot.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import toy.springboot.dto.BoardDTO;
@@ -45,5 +49,27 @@ public class BoardService {
     @Transactional
     public void updateHits(Long id) {
         boardRepository.updateHits(id);
+    }
+
+    public BoardDTO update(BoardDTO boardDTO) {
+        BoardEntity boardEntity = BoardEntity.toBoardUpdateEntity(boardDTO);
+        boardRepository.save(boardEntity);
+        return findById(boardDTO.getId());
+    }
+
+    public void delete(Long id) {
+        boardRepository.deleteById(id);
+    }
+
+    public Page<BoardDTO> paging(Pageable pageable) {
+        int page = pageable.getPageNumber() - 1; //
+        int pageLimit = 3;  // 한 페이지에 보여줄 글 갯수
+        // 한 페이지당 3개씩 글을 보여주고 정렬 기준은 id(entity) 기준으로 내림차순 정렬
+        Page<BoardEntity> boardEntities
+                = boardRepository.findAll(PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "id")));
+
+        Page<BoardDTO> boardDTOS = boardEntities
+                .map(board -> new BoardDTO(board.getId(), board.getBoardWriter(), board.getBoardTitle(), board.getBoardHits(), board.getCreatedTime()));
+        return boardDTOS;
     }
 }
