@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import toy.springboot.dto.BoardDTO;
 import toy.springboot.service.BoardService;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -27,8 +28,7 @@ public class BoardController {
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute BoardDTO boardDTO) {
-        log.info("boardDTO = {}", boardDTO);
+    public String save(@ModelAttribute BoardDTO boardDTO) throws IOException {
         boardService.save(boardDTO);
         return "redirect:/";
     }
