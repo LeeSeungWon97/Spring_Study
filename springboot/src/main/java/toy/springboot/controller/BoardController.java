@@ -9,7 +9,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import toy.springboot.dto.BoardDTO;
+import toy.springboot.dto.CommentDTO;
 import toy.springboot.service.BoardService;
+import toy.springboot.service.CommentService;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
+    private final CommentService commentService;
 
     @GetMapping("/save")
     public String saveForm() {
@@ -45,8 +48,13 @@ public class BoardController {
                            @PageableDefault(page=1) Pageable pageable) {
         boardService.updateHits(id);
         BoardDTO boardDTO = boardService.findById(id);
+
+        // 댓글 목록 조회
+        List<CommentDTO> commentDTOList = commentService.findAll(id);
+
         model.addAttribute("board", boardDTO);
         model.addAttribute("page", pageable.getPageNumber());
+        model.addAttribute("commentList", commentDTOList);
         return "/board/detail";
     }
 
